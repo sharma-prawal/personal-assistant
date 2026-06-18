@@ -1,0 +1,12 @@
+{
+  "name": "J.A.R.V.I.S.",
+  "short_name": "JARVIS",
+  "description": "Just A Rather Very Intelligent System — personal intelligence briefing assistant",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f0ebe0",
+  "theme_color": "#1a0f08",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
