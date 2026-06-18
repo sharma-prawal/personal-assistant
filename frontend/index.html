@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>J.A.R.V.I.S.</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="stylesheet" href="styles.css?v=4" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Orbitron:wght@700;900&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+<canvas id="hex-canvas"></canvas>
+
+<div id="app">
+
+  <!-- Header -->
+  <header id="header">
+    <div>
+      <div class="logo">J<span>.</span>A<span>.</span>R<span>.</span>V<span>.</span>I<span>.</span>S<span>.</span></div>
+      <div class="logo-sub">Just a rather very intelligent system</div>
+    </div>
+    <div style="text-align:center">
+      <div id="clock">--:--:--</div>
+      <div id="date-display"></div>
+    </div>
+    <div style="text-align:right">
+      <div class="sys-label"><span id="conn-indicator"></span>System Status</div>
+      <div id="status-text">Initializing...</div>
+    </div>
+  </header>
+
+  <!-- Left: service chips -->
+  <div class="panel" id="panel-services">
+    <div class="panel-title">Service Monitor</div>
+    <div id="service-list"></div>
+  </div>
+
+  <!-- Center: orb + briefing -->
+  <div class="panel" id="panel-main">
+    <div id="radar-overlay"></div>
+    <div class="panel-title">Intelligence Briefing</div>
+
+    <div id="brief-top">
+      <div id="arc-ring">
+        <div class="orb-tick-ring"></div>
+        <div class="orb-mid-ring"></div>
+        <div class="orb-sphere"></div>
+      </div>
+      <div id="brief-readout">
+        <div id="brief-readout-status">JARVIS Online</div>
+        <div id="brief-readout-state">Standby &nbsp;·&nbsp; Awaiting command, sir</div>
+        <div class="brief-readout-sep"></div>
+        <div id="brief-ticker"></div>
+      </div>
+    </div>
+
+    <div id="brief-stats">
+      <div class="bstat"><div class="bstat-val" id="bstat-unread">—</div><div class="bstat-lbl">Unread</div></div>
+      <div class="bstat bstat-red"><div class="bstat-val" id="bstat-critical">—</div><div class="bstat-lbl">Critical</div></div>
+      <div class="bstat"><div class="bstat-val" id="bstat-events">—</div><div class="bstat-lbl">Events Today</div></div>
+      <div class="bstat"><div class="bstat-val" id="bstat-brieftime">—</div><div class="bstat-lbl">Briefed At</div></div>
+    </div>
+
+    <div id="idle-viz">
+      <div id="idle-hex-grid"></div>
+      <div id="idle-sonar"></div>
+      <div id="idle-cta">Initiate briefing to begin your intelligence summary</div>
+    </div>
+
+    <div id="briefing-output"></div>
+    <div id="qa-section">
+      <div id="qa-input-row">
+        <input type="text" id="qa-input" placeholder="Ask a follow-up question, sir…" autocomplete="off" spellcheck="false" />
+        <button id="qa-submit">Ask</button>
+      </div>
+      <div id="qa-output"></div>
+    </div>
+  </div>
+
+  <!-- Top-right: calendar -->
+  <div class="panel" id="panel-calendar">
+    <div class="panel-title">Today's Schedule</div>
+    <div id="calendar-list"><div class="skeleton-block"><div class="skeleton-line"></div><div class="skeleton-line"></div><div class="skeleton-line"></div></div></div>
+  </div>
+
+  <!-- Bottom-right: action items -->
+  <div class="panel" id="panel-actions">
+    <div class="panel-title">Action Items <span id="action-count"></span></div>
+    <div id="action-list"><div class="skeleton-block"><div class="skeleton-line"></div><div class="skeleton-line"></div><div class="skeleton-line"></div></div></div>
+  </div>
+
+  <!-- Footer -->
+  <footer id="footer">
+    <button id="btn-mute">Mute</button>
+    <button id="btn-setup">Setup Logins</button>
+    <button id="btn-next" style="display:none">Logged In &mdash; Next</button>
+    <button id="btn-brief">New Briefing</button>
+  </footer>
+
+</div>
+
+<!-- Detail Drawer -->
+<div id="detail-drawer">
+  <div id="drawer-header">
+    <span id="drawer-title">Details</span>
+    <button id="drawer-close" onclick="document.getElementById('detail-drawer').classList.remove('open')">✕</button>
+  </div>
+  <div id="drawer-body"></div>
+</div>
+<div id="drawer-backdrop" onclick="document.getElementById('detail-drawer').classList.remove('open')"></div>
+
+<!-- Live Notification Toast -->
+<div id="notif-toast">
+  <div id="notif-toast-top">
+    <span id="notif-toast-label"></span>
+    <span id="notif-toast-count"></span>
+    <button id="notif-toast-close" onclick="document.getElementById('notif-toast').classList.remove('show')">✕</button>
+  </div>
+  <div id="notif-toast-body"></div>
+  <div id="notif-toast-footer">
+    <button onclick="openNotifDrawer()">View Details</button>
+    <span id="notif-poll-indicator">● Live Monitoring</span>
+  </div>
+</div>
+
+<!-- Action Item Detail Modal -->
+<div id="action-modal" class="action-modal-overlay" onclick="closeActionModal(event)">
+  <div class="action-modal-box">
+    <div class="action-modal-header">
+      <div class="action-modal-badges">
+        <span id="modal-priority-badge" class="modal-badge"></span>
+        <span id="modal-source-badge" class="modal-badge modal-badge-source"></span>
+      </div>
+      <button class="action-modal-close" onclick="closeActionModal()">✕</button>
+    </div>
+    <div id="modal-item-text" class="action-modal-item"></div>
+    <div class="action-modal-section-label">Context</div>
+    <div id="modal-from-row" class="action-modal-row" style="display:none">
+      <span class="action-modal-row-label">From</span>
+      <span id="modal-from" class="action-modal-row-value"></span>
+    </div>
+    <div id="modal-subject-row" class="action-modal-row" style="display:none">
+      <span class="action-modal-row-label">Subject</span>
+      <span id="modal-subject" class="action-modal-row-value"></span>
+    </div>
+    <div id="modal-detail" class="action-modal-detail"></div>
+    <div class="action-modal-footer">
+      <button class="modal-btn-speak" onclick="speakModalContent()">&#9654; Speak</button>
+    </div>
+  </div>
+</div>
+
+<!-- Command Palette -->
+<div id="cmd-overlay" onclick="closePalette()">
+  <div id="cmd-palette" onclick="event.stopPropagation()">
+    <div id="cmd-search-row">
+      <i class="ti ti-search" id="cmd-icon" aria-hidden="true"></i>
+      <input type="text" id="cmd-input" placeholder="Type a command…" autocomplete="off" spellcheck="false" />
+      <span id="cmd-hint">ESC</span>
+    </div>
+    <div id="cmd-list"></div>
+    <div id="cmd-footer">⌘K to open &nbsp;·&nbsp; ↑↓ navigate &nbsp;·&nbsp; ↵ select</div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="app.js?v=6"></script>
+</body>
+</html>
