@@ -1,5 +1,13 @@
 # J.A.R.V.I.S. Personal Assistant
 
+> A local personal briefing dashboard: browser agents collect calendar and inbox signals and an LLM writes the daily briefing.
+
+<p align="center">
+  <img src="docs/screenshots/desktop.jpg" width="72%" alt="Screenshot" />
+  <img src="docs/screenshots/mobile.jpg" width="18%" alt="Screenshot" />
+</p>
+
+
 J.A.R.V.I.S. is a local personal briefing dashboard. It uses Playwright browser automation instead of official Gmail, Slack, Teams, or Outlook APIs, which keeps it usable when an organization does not allow you to create OAuth apps or obtain API tokens.
 
 ## How It Works
