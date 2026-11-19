@@ -408,12 +408,14 @@ async def _start_scheduler():
 
 
 async def _auto_brief_scheduler():
-    last_fired = ""
+    last_fired = None  # (date, "HH:MM") so the same time fires again the next day
     while True:
         await asyncio.sleep(30)
-        now_str = datetime.datetime.now().strftime("%H:%M")
-        if now_str in _BRIEFING_TIMES and now_str != last_fired:
-            last_fired = now_str
+        now = datetime.datetime.now()
+        now_str = now.strftime("%H:%M")
+        key = (now.date(), now_str)
+        if now_str in _BRIEFING_TIMES and key != last_fired:
+            last_fired = key
             for ws in list(_connected_ws):
                 try:
                     await _run_briefing(ws, {})
